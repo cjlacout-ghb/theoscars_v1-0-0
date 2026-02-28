@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import LoginScreen from './LoginScreen';
 import OscarsApp from './components/oscars2026.jsx';
+import AdminPanel from './components/oscars/AdminPanel';
 
 export default function App() {
   // null  = still loading session
@@ -9,6 +10,7 @@ export default function App() {
   // true  = authenticated
   const [sessionReady, setSessionReady] = useState(null);
   const [slot, setSlot] = useState(null);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   // ── Fetch the slot for a given user_id ──────────────────────────────────
   const fetchSlot = async (userId) => {
@@ -78,7 +80,12 @@ export default function App() {
 
   // ── Not logged in ────────────────────────────────────────────────────────
   if (!sessionReady) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return (
+      <>
+        <LoginScreen onLogin={handleLogin} setAdminOpen={setAdminOpen} />
+        <AdminPanel adminOpen={adminOpen} setAdminOpen={setAdminOpen} />
+      </>
+    );
   }
 
   // ── Logged in ────────────────────────────────────────────────────────────
@@ -87,10 +94,11 @@ export default function App() {
       {/* Logout button — always visible while authenticated */}
       <div className="logout-bar">
         <button id="logout-btn" className="logout-btn" onClick={handleLogout}>
-          Cerrar sesión
+          Finalizar Turno (Cambiar Jugador)
         </button>
       </div>
-      <OscarsApp slot={slot} />
+      <OscarsApp slot={slot} setAdminOpen={setAdminOpen} />
+      <AdminPanel adminOpen={adminOpen} setAdminOpen={setAdminOpen} />
     </>
   );
 }

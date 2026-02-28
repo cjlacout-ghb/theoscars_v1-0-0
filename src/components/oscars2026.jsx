@@ -15,12 +15,11 @@ import ProfileEditor from "./oscars/ProfileEditor";
 import VotingTab from "./oscars/VotingTab";
 import CompareTab from "./oscars/CompareTab";
 import ResultsTab from "./oscars/ResultsTab";
-import AdminPanel from "./oscars/AdminPanel";
 
 // ─────────────────────────────────────────────
 // COMPONENTE PRINCIPAL
 // ─────────────────────────────────────────────
-export default function OscarsApp({ slot }) {
+export default function OscarsApp({ slot, setAdminOpen }) {
   const [phase, setPhase] = useState("setup");
   const [mySlot, setMySlot] = useState(slot ?? null);
   const [myEmoji, setMyEmoji] = useState(null);
@@ -29,9 +28,6 @@ export default function OscarsApp({ slot }) {
   const [votes, setVotes] = useState({});
   const [winners, setWinners] = useState({});
   const [activeTab, setActiveTab] = useState("votar");
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [adminPass, setAdminPass] = useState("");
-  const [adminAuth, setAdminAuth] = useState(false);
   const [lastSync, setLastSync] = useState(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editingName, setEditingName] = useState("");
@@ -112,46 +108,6 @@ export default function OscarsApp({ slot }) {
     alert("Votos reiniciados correctamente.");
   };
 
-  const setWinner = async (catId, nominee) => {
-    const updated = { ...winners, [catId]: winners[cat.id] === nominee ? null : nominee };
-    setWinners(updated);
-    await storageSet(WINNERS_KEY, updated);
-  };
-
-  const resetAll = async () => {
-    if (!resetConfirm) {
-      setResetConfirm(true);
-      return;
-    }
-
-    try {
-      await Promise.all([
-        storageSet(VOTES_KEY, {}),
-        storageSet(WINNERS_KEY, {}),
-        storageSet(PLAYERS_KEY, { p1: null, p2: null }),
-      ]);
-      setVotes({});
-      setWinners({});
-      setPlayers({ p1: null, p2: null });
-      setPhase("setup");
-      setMySlot(null);
-      setMyEmoji(null);
-      setMyName("");
-      setResetConfirm(false);
-      // slot is auth-managed — no localStorage to clear
-      alert("Aplicación reiniciada globalmente.");
-    } catch (error) {
-      console.error("resetAll failed:", error);
-      alert("Error al reiniciar la aplicación.");
-    }
-  };
-
-  const clearWinnersData = async () => {
-    if (!confirm("¿Limpiar todos los ganadores?")) return;
-    await storageSet(WINNERS_KEY, {});
-    setWinners({});
-  };
-
   const scores = useMemo(() => {
     let p1 = 0, p2 = 0;
     CATEGORIES.forEach((cat) => {
@@ -179,7 +135,13 @@ export default function OscarsApp({ slot }) {
       {/* HERO */}
       <div className="hero">
         <h1>
-          <span>98ª Edición · 2026</span>
+          <span
+            onClick={() => setAdminOpen(true)}
+            style={{ cursor: "pointer" }}
+            title="Panel de Administración"
+          >
+            98ª Edición · 2026
+          </span>
           Academia de Artes y Ciencias Cinematográficas
         </h1>
         <p>Dolby Theatre · Hollywood · Domingo 15 de marzo de 2026</p>
@@ -219,7 +181,6 @@ export default function OscarsApp({ slot }) {
                 setResetConfirm={setResetConfirm}
                 resetVotes={resetVotes}
                 startEditing={startEditing}
-                resetAll={resetAll}
               />
             )}
 
@@ -287,18 +248,6 @@ export default function OscarsApp({ slot }) {
                   />
                 )}
 
-                <AdminPanel
-                  adminOpen={adminOpen}
-                  setAdminOpen={setAdminOpen}
-                  adminAuth={adminAuth}
-                  setAdminAuth={setAdminAuth}
-                  adminPass={adminPass}
-                  setAdminPass={setAdminPass}
-                  winners={winners}
-                  setWinner={setWinner}
-                  resetAll={resetAll}
-                  clearWinners={clearWinnersData}
-                />
               </>
             )}
           </>

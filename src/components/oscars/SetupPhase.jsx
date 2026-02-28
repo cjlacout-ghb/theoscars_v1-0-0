@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { EMOJIS, GOLD } from "../../lib/constants";
 
 const SetupPhase = ({
@@ -15,12 +15,17 @@ const SetupPhase = ({
     setResetConfirm,
     resetVotes,
     startEditing,
-    resetAll,
 }) => {
+    const [savedName, setSavedName] = useState("");
+
+    const handleSaveName = () => {
+        if (myName.trim()) setSavedName(myName.trim());
+    };
+
     return (
         <div className="card">
             <div className="card-title">Registrar Participante</div>
-            <p style={{ fontSize: 20, color: "#8a7a5a", marginBottom: 22 }}>¿Quién sos?</p>
+            <p style={{ fontSize: 20, color: "#8a7a5a", marginBottom: 12 }}>¿Quién sos?</p>
 
             <div className="slot-grid">
                 {["p1", "p2"].map((slot) => (
@@ -28,6 +33,7 @@ const SetupPhase = ({
                         key={slot}
                         className={`slot-btn ${mySlot === slot ? "selected" : ""}`}
                         onClick={() => setMySlot(slot)}
+                        disabled={mySlot !== slot}
                     >
                         {players[slot] ? (
                             <>
@@ -51,7 +57,9 @@ const SetupPhase = ({
                             </>
                         ) : (
                             <>
-                                <div style={{ fontSize: 42, opacity: 0.35, color: "#c9a84c" }}>?</div>
+                                <div style={{ fontSize: 42, opacity: mySlot === slot && myEmoji ? 1 : 0.35, color: "#c9a84c" }}>
+                                    {mySlot === slot && myEmoji ? myEmoji : "?"}
+                                </div>
                                 <div
                                     style={{
                                         fontSize: 18,
@@ -59,7 +67,7 @@ const SetupPhase = ({
                                         marginTop: 10,
                                     }}
                                 >
-                                    Jugador {slot === "p1" ? "1" : "2"}
+                                    {mySlot === slot && savedName ? savedName : `Jugador ${slot === "p1" ? "1" : "2"}`}
                                 </div>
                                 <div
                                     style={{
@@ -68,7 +76,7 @@ const SetupPhase = ({
                                         marginTop: 6,
                                     }}
                                 >
-                                    {mySlot === slot ? "← Seleccionado" : "Disponible"}
+                                    {mySlot === slot ? "Seleccionar" : "Bloqueado"}
                                 </div>
                             </>
                         )}
@@ -99,15 +107,50 @@ const SetupPhase = ({
                             </button>
                         ))}
                     </div>
-                    <div style={{ marginBottom: 20 }}>
+                    <div style={{ marginBottom: 14, display: "flex", gap: "10px", alignItems: "center" }}>
                         <input
                             type="text"
                             placeholder="Tu nombre o apodo"
                             value={myName}
-                            onChange={(e) => setMyName(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && registerPlayer()}
+                            onChange={(e) => {
+                                setMyName(e.target.value);
+                                if (savedName && e.target.value.trim() !== savedName) {
+                                    setSavedName(""); // reset if they start typing something else
+                                }
+                            }}
+                            onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
                             maxLength={20}
+                            style={{ flex: 1 }}
                         />
+                        {myName.trim() && myName.trim() !== savedName && (
+                            <button
+                                onClick={handleSaveName}
+                                title="Guardar nombre"
+                                style={{
+                                    background: "transparent",
+                                    border: "1px solid rgba(201, 168, 76, 0.4)",
+                                    color: "#c8b88a",
+                                    fontFamily: "'Cormorant Garamond', serif",
+                                    fontSize: "15px",
+                                    letterSpacing: "0.08em",
+                                    padding: "8px 16px",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.borderColor = "#c9a84c";
+                                    e.target.style.color = "#c9a84c";
+                                    e.target.style.background = "rgba(201, 168, 76, 0.1)";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.borderColor = "rgba(201, 168, 76, 0.4)";
+                                    e.target.style.color = "#c8b88a";
+                                    e.target.style.background = "transparent";
+                                }}
+                            >
+                                ✓ Listo
+                            </button>
+                        )}
                     </div>
                     <button
                         className="btn solid"
@@ -142,13 +185,6 @@ const SetupPhase = ({
                                     Cancelar
                                 </button>
                             </div>
-                            <button
-                                className="reset-btn"
-                                style={{ marginTop: 5, borderColor: "#dc3545", color: "#dc3545", background: "rgba(220, 53, 69, 0.1)" }}
-                                onClick={resetAll}
-                            >
-                                CONFIRMAR REINICIO GLOBAL
-                            </button>
                         </div>
                     ) : (
                         <button className="reset-btn" onClick={() => setResetConfirm(true)}>
@@ -160,22 +196,8 @@ const SetupPhase = ({
 
             {!mySlot && (
                 <p style={{ textAlign: "center", color: "#8a7a5a", fontSize: 19, marginTop: 10, fontStyle: "italic", letterSpacing: "0.05em" }}>
-                    Seleccioná tu lugar para continuar
+                    Cargando tu lugar...
                 </p>
-            )}
-
-            {!resetConfirm && (
-                <button
-                    className="reset-btn"
-                    style={{
-                        marginTop: 30,
-                        borderColor: "rgba(220, 53, 69, 0.2)",
-                        opacity: 0.6
-                    }}
-                    onClick={() => setResetConfirm(true)}
-                >
-                    Reiniciar aplicación (Global)
-                </button>
             )}
         </div>
     );

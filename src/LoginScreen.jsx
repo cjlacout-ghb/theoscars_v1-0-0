@@ -7,7 +7,7 @@ import './styles/oscars.css';
  * - No registration; users are pre-created in Supabase Auth.
  * - On success, checks/creates a row in user_slots and calls onLogin(slot).
  */
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen({ onLogin, setAdminOpen }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -86,7 +86,15 @@ export default function LoginScreen({ onLogin }) {
             <div className="login-card">
                 {/* Decorative header */}
                 <div className="login-ornament">◆ ◆ ◆</div>
-                <h2 className="login-title">Academia</h2>
+                <h2 className="login-title">
+                    <span
+                        onClick={() => setAdminOpen(true)}
+                        style={{ cursor: "pointer" }}
+                        title="Panel de Administración"
+                    >
+                        Academia
+                    </span>
+                </h2>
                 <p className="login-subtitle">Acceso privado · Temporada 2026</p>
 
                 <form onSubmit={handleSubmit} className="login-form">
