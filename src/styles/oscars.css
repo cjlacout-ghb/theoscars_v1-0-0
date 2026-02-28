@@ -180,6 +180,14 @@ body {
     color: var(--gold);
 }
 
+.btn-sm.winner-selected {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    font-weight: 700;
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(201, 168, 76, 0.4);
+}
+
 .category-block {
     margin-bottom: 36px;
     padding-bottom: 36px;

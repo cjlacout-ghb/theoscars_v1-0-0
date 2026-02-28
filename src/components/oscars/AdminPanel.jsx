@@ -6,6 +6,8 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     const [adminAuth, setAdminAuth] = useState(false);
     const [adminPass, setAdminPass] = useState("");
     const [winners, setWinners] = useState({});
+    const [localResetConfirm, setLocalResetConfirm] = useState(false);
+    const [localClearConfirm, setLocalClearConfirm] = useState(false);
 
     const syncWinners = useCallback(async () => {
         if (!adminOpen || !adminAuth) return;
@@ -26,7 +28,7 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     };
 
     const resetAll = async () => {
-        if (!confirm("¿CONFIRMAR REINICIO GLOBAL?")) return;
+        console.log("AdminPanel: Executing resetAll...");
         try {
             await Promise.all([
                 storageSet(VOTES_KEY, {}),
@@ -34,18 +36,26 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
                 storageSet(PLAYERS_KEY, { p1: null, p2: null }),
             ]);
             setWinners({});
+            setLocalResetConfirm(false);
             alert("Aplicación reiniciada globalmente.");
             window.location.reload();
         } catch (error) {
-            console.error("resetAll failed:", error);
+            console.error("AdminPanel: resetAll failed:", error);
             alert("Error al reiniciar la aplicación.");
         }
     };
 
     const clearWinners = async () => {
-        if (!confirm("¿Limpiar todos los ganadores?")) return;
-        await storageSet(WINNERS_KEY, {});
-        setWinners({});
+        console.log("AdminPanel: Executing clearWinners...");
+        try {
+            await storageSet(WINNERS_KEY, {});
+            setWinners({});
+            setLocalClearConfirm(false);
+            alert("Ganadores limpiados correctamente.");
+        } catch (error) {
+            console.error("AdminPanel: clearWinners failed:", error);
+            alert("Error al limpiar ganadores.");
+        }
     };
 
     if (!adminOpen) return null;
@@ -107,21 +117,60 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
                             >
                                 Cargá los ganadores reales — 15 de marzo de 2026
                             </div>
-                            <div style={{ display: "flex", gap: 10, marginBottom: 26, flexWrap: "wrap" }}>
-                                <button
-                                    className="btn-sm"
-                                    style={{ borderColor: "rgba(200,80,80,0.4)", color: "#c87878" }}
-                                    onClick={resetAll}
-                                >
-                                    Reset completo
-                                </button>
-                                <button
-                                    className="btn-sm"
-                                    style={{ borderColor: "rgba(200,80,80,0.4)", color: "#c87878" }}
-                                    onClick={clearWinners}
-                                >
-                                    Limpiar ganadores
-                                </button>
+                            <div style={{ display: "flex", gap: 10, marginBottom: 26, flexWrap: "wrap", alignItems: "center" }}>
+                                {!localResetConfirm ? (
+                                    <button
+                                        className="btn-sm"
+                                        style={{ borderColor: "rgba(200,80,80,0.6)", color: "#ee9999", fontSize: "12px" }}
+                                        onClick={() => setLocalResetConfirm(true)}
+                                    >
+                                        Reset completo
+                                    </button>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: 5 }}>
+                                        <button
+                                            className="btn-sm"
+                                            style={{ background: "#822", color: "white", borderColor: "#f66", fontSize: "12px" }}
+                                            onClick={resetAll}
+                                        >
+                                            Confirmar Reset
+                                        </button>
+                                        <button
+                                            className="btn-sm"
+                                            style={{ borderColor: "#666", color: "#999", fontSize: "12px" }}
+                                            onClick={() => setLocalResetConfirm(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                )}
+
+                                {!localClearConfirm ? (
+                                    <button
+                                        className="btn-sm"
+                                        style={{ borderColor: "rgba(200,80,80,0.4)", color: "#c87878", fontSize: "12px" }}
+                                        onClick={() => setLocalClearConfirm(true)}
+                                    >
+                                        Limpiar ganadores
+                                    </button>
+                                ) : (
+                                    <div style={{ display: 'flex', gap: 5 }}>
+                                        <button
+                                            className="btn-sm"
+                                            style={{ background: "#644", color: "white", borderColor: "#c88", fontSize: "12px" }}
+                                            onClick={clearWinners}
+                                        >
+                                            Confirmar Limpiar
+                                        </button>
+                                        <button
+                                            className="btn-sm"
+                                            style={{ borderColor: "#666", color: "#999", fontSize: "12px" }}
+                                            onClick={() => setLocalClearConfirm(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                             {CATEGORIES.map((cat) => (
                                 <div key={cat.id} style={{ marginBottom: 26 }}>
@@ -143,8 +192,7 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
                                         {cat.nominees.map((nom) => (
                                             <button
                                                 key={nom}
-                                                className="btn-sm"
-                                                style={winners[cat.id] === nom ? { borderColor: GOLD, color: GOLD } : {}}
+                                                className={`btn-sm ${winners[cat.id] === nom ? "winner-selected" : ""}`}
                                                 onClick={() => setWinner(cat.id, nom)}
                                             >
                                                 {nom.substring(0, 38)}

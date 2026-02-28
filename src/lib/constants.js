@@ -43,7 +43,7 @@ export const CATEGORIES = [
         id: "best_supporting_actor",
         name: "Mejor Actor de Reparto",
         nominees: [
-            "Benicio Del Toro · One Battle After Another",
+            "Benicio del Toro · One Battle After Another",
             "Jacob Elordi · Frankenstein", "Delroy Lindo · Sinners",
             "Sean Penn · One Battle After Another",
             "Stellan Skarsgård · Sentimental Value",
@@ -73,7 +73,7 @@ export const CATEGORIES = [
         id: "best_original_screenplay",
         name: "Mejor Guión Original",
         nominees: [
-            "Blue Moon · Robert Kaplow", "It Was Just An Accident · Jafar Panahi",
+            "Blue Moon · Robert Kaplow", "It Was Just an Accident · Jafar Panahi",
             "Marty Supreme · Josh Safdie y Ronald Bronstein",
             "Sentimental Value · Eskil Vogt y Joachim Trier",
             "Sinners · Ryan Coogler",
