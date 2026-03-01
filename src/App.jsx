@@ -3,8 +3,18 @@ import { supabase } from './supabaseClient';
 import LoginScreen from './LoginScreen';
 import OscarsApp from './components/oscars2026.jsx';
 import AdminPanel from './components/oscars/AdminPanel';
+import ErrorBoundary from './components/ErrorBoundary';
+import { logger } from './lib/logger';
 
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
+}
+
+function AppContent() {
   // null  = still loading session
   // false = no session (show login)
   // true  = authenticated
@@ -21,7 +31,7 @@ export default function App() {
       .maybeSingle();
 
     if (error) {
-      console.error('fetchSlot error:', error);
+      logger.error('fetchSlot error:', error);
       return null;
     }
     return data?.slot ?? null;
@@ -106,3 +116,4 @@ export default function App() {
     </>
   );
 }
+

@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 const SUPABASE_URL = "https://lezdpqvgizwocanjeray.supabase.co";
 const SUPABASE_KEY = "sb_publishable_U1MphUk0VKWQCLJFIJSeBg_L2h7F08X";
 
@@ -19,14 +21,14 @@ export async function storageGet(key) {
         );
 
         if (!res.ok) {
-            console.error(`storageGet failed for key "${key}":`, res.status, await res.text());
+            logger.error(`storageGet failed for key "${key}":`, { status: res.status });
             return null;
         }
 
         const data = await res.json();
         return data.length > 0 ? JSON.parse(data[0].value) : null;
     } catch (err) {
-        console.error(`storageGet fetch failed for key "${key}":`, err);
+        logger.error(`storageGet internal error for key "${key}":`, err);
         return null;
     }
 }
@@ -51,9 +53,9 @@ export async function storageSet(key, val) {
 
         if (!res.ok) {
             const txt = await res.text();
-            console.error(`storageSet error for key "${key}":`, res.status, txt);
+            logger.error(`storageSet error for key "${key}":`, { status: res.status, text: txt });
         }
     } catch (err) {
-        console.error(`storageSet fetch failed for key "${key}":`, err);
+        logger.error(`storageSet internal error for key "${key}":`, err);
     }
 }

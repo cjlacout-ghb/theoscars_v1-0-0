@@ -80,6 +80,7 @@ body {
     width: 100%;
     max-width: 920px;
     padding: 20px 16px 40px;
+    min-height: 60vh;
 }
 
 .card {
@@ -247,6 +248,9 @@ body {
     padding: 22px;
     background: rgba(201, 168, 76, 0.04);
     border: 1px solid rgba(201, 168, 76, 0.12);
+    min-height: 100px;
+    content-visibility: auto;
+    contain-intrinsic-size: 100px;
 }
 
 .player-badge {

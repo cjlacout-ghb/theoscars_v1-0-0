@@ -51,17 +51,18 @@ const ResultsTab = ({ scores, p1, p2, winners, votes, revealedCount }) => {
                 const p2hit = votes[cat.id]?.p2 === w;
                 return (
                     <div key={cat.id} className="result-row">
-                        <div
+                        <h3
                             style={{
                                 fontSize: 13,
                                 letterSpacing: "0.15em",
                                 color: "#6a5a3a",
                                 textTransform: "uppercase",
                                 marginBottom: 10,
+                                margin: 0
                             }}
                         >
                             {cat.name}
-                        </div>
+                        </h3>
                         <div style={{ color: GOLD, fontSize: 18, marginBottom: 10, lineHeight: 1.3 }}>
                             🏆 {w}
                         </div>

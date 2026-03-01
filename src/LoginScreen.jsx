@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
+import { logger } from './lib/logger';
 import './styles/oscars.css';
 
 /**
@@ -79,7 +80,7 @@ export default function LoginScreen({ onLogin, setAdminOpen }) {
             onLogin(assignedSlot);
         } catch (err) {
             setError('Error inesperado. Intente nuevamente.');
-            console.error(err);
+            logger.error("LoginScreen error:", err);
             setLoading(false);
         }
     };

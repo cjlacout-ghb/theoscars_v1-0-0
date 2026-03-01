@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { CATEGORIES, GOLD, ADMIN_PASSWORD, WINNERS_KEY, VOTES_KEY, PLAYERS_KEY } from "../../lib/constants";
 import { storageGet, storageSet } from "../../lib/supabase";
+import { logger } from "../../lib/logger";
 
 const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     const [adminAuth, setAdminAuth] = useState(false);
@@ -43,7 +44,6 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     };
 
     const resetAll = async () => {
-        console.log("AdminPanel: Executing resetAll...");
         try {
             await Promise.all([
                 storageSet(VOTES_KEY, {}),
@@ -55,20 +55,19 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
             alert("Aplicación reiniciada globalmente.");
             window.location.reload();
         } catch (error) {
-            console.error("AdminPanel: resetAll failed:", error);
+            logger.error("AdminPanel: resetAll failed:", error);
             alert("Error al reiniciar la aplicación.");
         }
     };
 
     const clearWinners = async () => {
-        console.log("AdminPanel: Executing clearWinners...");
         try {
             await storageSet(WINNERS_KEY, {});
             setWinners({});
             setLocalClearConfirm(false);
             alert("Ganadores limpiados correctamente.");
         } catch (error) {
-            console.error("AdminPanel: clearWinners failed:", error);
+            logger.error("AdminPanel: clearWinners failed:", error);
             alert("Error al limpiar ganadores.");
         }
     };

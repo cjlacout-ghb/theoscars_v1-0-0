@@ -21,17 +21,18 @@ const CompareTab = ({ votes, p1, p2 }) => {
                 const agree = v1 && v2 && v1 === v2;
                 return (
                     <div key={cat.id} className={`compare-row ${agree ? "agree" : ""}`}>
-                        <div
+                        <h3
                             style={{
                                 fontSize: 15,
                                 letterSpacing: "0.15em",
                                 color: "#6a5a3a",
                                 textTransform: "uppercase",
                                 marginBottom: 12,
+                                margin: 0
                             }}
                         >
                             {cat.name} {agree && <span style={{ color: GOLD }}>· ✦ Coinciden</span>}
-                        </div>
+                        </h3>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                             <div>
                                 <div style={{ fontSize: 16, color: "#4a3a2a", marginBottom: 6 }}>
