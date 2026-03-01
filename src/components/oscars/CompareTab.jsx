@@ -6,7 +6,7 @@ const CompareTab = ({ votes, p1, p2 }) => {
         <>
             <p
                 style={{
-                    fontSize: 16,
+                    fontSize: 18,
                     color: "#6a5a3a",
                     letterSpacing: "0.08em",
                     marginBottom: 28,
@@ -23,7 +23,7 @@ const CompareTab = ({ votes, p1, p2 }) => {
                     <div key={cat.id} className={`compare-row ${agree ? "agree" : ""}`}>
                         <div
                             style={{
-                                fontSize: 13,
+                                fontSize: 15,
                                 letterSpacing: "0.15em",
                                 color: "#6a5a3a",
                                 textTransform: "uppercase",
@@ -34,18 +34,18 @@ const CompareTab = ({ votes, p1, p2 }) => {
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                             <div>
-                                <div style={{ fontSize: 14, color: "#4a3a2a", marginBottom: 6 }}>
+                                <div style={{ fontSize: 16, color: "#4a3a2a", marginBottom: 6 }}>
                                     {p1?.emoji || "?"} {p1?.name || "J1"}
                                 </div>
-                                <div style={{ fontSize: 17, color: v1 ? "#c8b88a" : "#3a2a1a", lineHeight: 1.35 }}>
+                                <div style={{ fontSize: 20, color: v1 ? "#c8b88a" : "#3a2a1a", lineHeight: 1.35 }}>
                                     {v1 || "—"}
                                 </div>
                             </div>
                             <div>
-                                <div style={{ fontSize: 14, color: "#4a3a2a", marginBottom: 6 }}>
+                                <div style={{ fontSize: 16, color: "#4a3a2a", marginBottom: 6 }}>
                                     {p2?.emoji || "?"} {p2?.name || "J2"}
                                 </div>
-                                <div style={{ fontSize: 17, color: v2 ? "#c8b88a" : "#3a2a1a", lineHeight: 1.35 }}>
+                                <div style={{ fontSize: 20, color: v2 ? "#c8b88a" : "#3a2a1a", lineHeight: 1.35 }}>
                                     {v2 || "—"}
                                 </div>
                             </div>

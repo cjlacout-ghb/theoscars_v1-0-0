@@ -70,7 +70,7 @@ body {
 
 .hero p {
     margin-top: 14px;
-    font-size: 17px;
+    font-size: 19px;
     color: #8a7a5a;
     letter-spacing: 0.08em;
     font-weight: 300;
@@ -91,7 +91,7 @@ body {
 
 .card-title {
     font-family: 'Playfair Display', serif;
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--gold);
@@ -134,7 +134,7 @@ body {
     border: 1px solid var(--gold);
     color: var(--gold);
     font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
+    font-size: 19px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 14px 32px;
@@ -167,7 +167,7 @@ body {
     border: 1px solid rgba(201, 168, 76, 0.4);
     color: #c8b88a;
     font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
+    font-size: 15px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 8px 18px;
@@ -226,7 +226,7 @@ body {
 }
 
 .nominee-name {
-    font-size: 18px;
+    font-size: 20px;
     color: #d4c4a0;
     flex: 1;
     line-height: 1.35;
@@ -261,14 +261,14 @@ body {
 }
 
 .player-info {
-    font-size: 15px;
+    font-size: 16px;
     color: #8a7a5a;
     letter-spacing: 0.05em;
 }
 
 .player-name {
     color: #c8b88a;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .tab-bar {
@@ -323,7 +323,7 @@ body {
 }
 
 .score-label {
-    font-size: 15px;
+    font-size: 17px;
     letter-spacing: 0.2em;
     color: #8a7a5a;
     text-transform: uppercase;
@@ -749,8 +749,10 @@ input:focus {
     font-size: 13px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    padding: 6px 16px;
+    padding: 8px 16px;
     cursor: pointer;
+    line-height: 1.4;
+    text-align: center;
     transition: all 0.2s;
 }
 

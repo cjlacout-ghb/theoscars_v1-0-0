@@ -93,8 +93,12 @@ export default function App() {
     <>
       {/* Logout button — always visible while authenticated */}
       <div className="logout-bar">
-        <button id="logout-btn" className="logout-btn" onClick={handleLogout}>
-          Finalizar Turno (Cambiar Jugador)
+        <button
+          id="logout-btn"
+          className="logout-btn"
+          onClick={handleLogout}
+        >
+          Finalizar Turno <br /> (Cambiar Jugador)
         </button>
       </div>
       <OscarsApp slot={slot} setAdminOpen={setAdminOpen} />

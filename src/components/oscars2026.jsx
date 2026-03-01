@@ -162,6 +162,8 @@ export default function OscarsApp({ slot, setAdminOpen }) {
             setEditingName={setEditingName}
             updateProfile={updateProfile}
             setIsEditingProfile={setIsEditingProfile}
+            players={players}
+            mySlot={mySlot}
           />
         ) : (
           <>

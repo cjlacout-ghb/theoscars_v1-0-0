@@ -22,6 +22,10 @@ const SetupPhase = ({
         if (myName.trim()) setSavedName(myName.trim());
     };
 
+    const otherSlot = mySlot === "p1" ? "p2" : "p1";
+    const otherPlayer = players[otherSlot];
+    const isNameTaken = otherPlayer && myName.trim().toLowerCase() === otherPlayer.name.toLowerCase();
+
     return (
         <div className="card">
             <div className="card-title">Registrar Participante</div>
@@ -97,15 +101,24 @@ const SetupPhase = ({
                         Elegí tu emoji
                     </p>
                     <div className="emoji-grid">
-                        {EMOJIS.map((e) => (
-                            <button
-                                key={e}
-                                className={`emoji-btn ${myEmoji === e ? "selected" : ""}`}
-                                onClick={() => setMyEmoji(e)}
-                            >
-                                {e}
-                            </button>
-                        ))}
+                        {EMOJIS.map((e) => {
+                            const isTaken = otherPlayer && otherPlayer.emoji === e;
+                            return (
+                                <button
+                                    key={e}
+                                    className={`emoji-btn ${myEmoji === e ? "selected" : ""}`}
+                                    onClick={() => !isTaken && setMyEmoji(e)}
+                                    disabled={isTaken}
+                                    style={{
+                                        opacity: isTaken ? 0.2 : 1,
+                                        cursor: isTaken ? "not-allowed" : "pointer",
+                                    }}
+                                    title={isTaken ? "Ya elegido por el otro jugador" : ""}
+                                >
+                                    {e}
+                                </button>
+                            );
+                        })}
                     </div>
                     <div style={{ marginBottom: 14, display: "flex", gap: "10px", alignItems: "center" }}>
                         <input
@@ -118,11 +131,14 @@ const SetupPhase = ({
                                     setSavedName(""); // reset if they start typing something else
                                 }
                             }}
-                            onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+                            onKeyDown={(e) => e.key === "Enter" && !isNameTaken && handleSaveName()}
                             maxLength={20}
-                            style={{ flex: 1 }}
+                            style={{
+                                flex: 1,
+                                borderColor: isNameTaken ? "#e07070" : undefined
+                            }}
                         />
-                        {myName.trim() && myName.trim() !== savedName && (
+                        {myName.trim() && myName.trim() !== savedName && !isNameTaken && (
                             <button
                                 onClick={handleSaveName}
                                 title="Guardar nombre"
@@ -152,10 +168,15 @@ const SetupPhase = ({
                             </button>
                         )}
                     </div>
+                    {isNameTaken && (
+                        <p style={{ color: "#e07070", fontSize: 14, marginTop: -10, marginBottom: 14, italic: true }}>
+                            Este nombre ya está siendo usado
+                        </p>
+                    )}
                     <button
                         className="btn solid"
                         onClick={registerPlayer}
-                        disabled={!myEmoji || !myName.trim()}
+                        disabled={!myEmoji || !myName.trim() || isNameTaken}
                     >
                         Comenzar a Votar →
                     </button>

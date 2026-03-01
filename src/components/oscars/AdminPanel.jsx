@@ -9,6 +9,10 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     const [localResetConfirm, setLocalResetConfirm] = useState(false);
     const [localClearConfirm, setLocalClearConfirm] = useState(false);
 
+    // STEP 1: New states for password UX
+    const [passwordError, setPasswordError] = useState(false);   // shows error message
+    const [showPassword, setShowPassword] = useState(false);     // toggles eye icon
+
     const syncWinners = useCallback(async () => {
         if (!adminOpen || !adminAuth) return;
         const w = await storageGet(WINNERS_KEY);
@@ -20,6 +24,17 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
         const interval = setInterval(syncWinners, 4000);
         return () => clearInterval(interval);
     }, [syncWinners]);
+
+    // STEP 2: Centralized auth handler — replaces inline logic
+    const handleAuth = () => {
+        if (adminPass === ADMIN_PASSWORD) {
+            setAdminAuth(true);
+            setPasswordError(false); // clear any previous error
+        } else {
+            setPasswordError(true);  // show error message
+            setAdminPass("");        // clear the input for retry
+        }
+    };
 
     const setWinner = async (catId, nominee) => {
         const updated = { ...winners, [catId]: winners[catId] === nominee ? null : nominee };
@@ -85,22 +100,82 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
                             }}>
                                 Panel de Resultados
                             </div>
+
+                            {/* STEP 3: Input row with eye icon inside the field */}
                             <div style={{ marginTop: 18, display: "flex", gap: 10 }}>
-                                <input
-                                    type="password"
-                                    placeholder="Contraseña de admin"
-                                    value={adminPass}
-                                    onChange={(e) => setAdminPass(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && adminPass === ADMIN_PASSWORD && setAdminAuth(true)}
-                                    style={{ flex: 1 }}
-                                />
+
+                                {/* Wrapper positions the eye icon absolutely inside the input */}
+                                <div style={{ flex: 1, position: "relative" }}>
+                                    <input
+                                        type={showPassword ? "text" : "password"} // toggles visibility
+                                        placeholder="Contraseña de admin"
+                                        value={adminPass}
+                                        onChange={(e) => {
+                                            setAdminPass(e.target.value);
+                                            setPasswordError(false); // clear error while typing
+                                        }}
+                                        onKeyDown={(e) => e.key === "Enter" && handleAuth()}
+                                        style={{ width: "100%", paddingRight: 36, boxSizing: "border-box" }}
+                                    />
+
+                                    {/* STEP 4: Eye icon button — toggles showPassword */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword((prev) => !prev)}
+                                        style={{
+                                            position: "absolute",
+                                            right: 10,
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            padding: 0,
+                                            color: showPassword ? GOLD : "#666",
+                                            fontSize: 16,
+                                            lineHeight: 1,
+                                        }}
+                                        title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                                    >
+                                        {/* Eye open / Eye closed SVG icons */}
+                                        {showPassword ? (
+                                            // Eye-off icon (password visible → click to hide)
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                                <line x1="1" y1="1" x2="23" y2="23" />
+                                            </svg>
+                                        ) : (
+                                            // Eye icon (password hidden → click to show)
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
+
                                 <button
                                     className="btn-sm"
-                                    onClick={() => adminPass === ADMIN_PASSWORD && setAdminAuth(true)}
+                                    onClick={handleAuth} // uses centralized handler
                                 >
                                     Ingresar
                                 </button>
                             </div>
+
+                            {/* STEP 5: Error message — only shows when passwordError is true */}
+                            {passwordError && (
+                                <div style={{
+                                    marginTop: 10,
+                                    fontSize: 12,
+                                    letterSpacing: "0.08em",
+                                    color: "#c87878",
+                                    textAlign: "center",
+                                    textTransform: "uppercase",
+                                }}>
+                                    Contraseña incorrecta. Intentá de nuevo.
+                                </div>
+                            )}
                         </>
                     )}
 

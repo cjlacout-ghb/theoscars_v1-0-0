@@ -12,6 +12,7 @@ export default function LoginScreen({ onLogin, setAdminOpen }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -49,23 +50,25 @@ export default function LoginScreen({ onLogin, setAdminOpen }) {
                 return;
             }
 
-            // 3. No slot yet — count rows to decide which slot to assign
+            // 3. No slot yet — Count existing slots BEFORE assigning a new one
+            // We use { count: 'exact', head: true } to get the total number of assigned slots
             const { count, error: countError } = await supabase
                 .from('user_slots')
                 .select('*', { count: 'exact', head: true });
 
             if (countError) {
-                setError('Error al asignar slot de usuario.');
+                setError('Error al determinar la disponibilidad de slots.');
                 setLoading(false);
                 return;
             }
 
-            const slot = count === 0 ? 'p1' : 'p2';
+            // 4. Assign slot: first user gets p1, second user (or any subsequent) gets p2
+            const assignedSlot = (count === 0) ? 'p1' : 'p2';
 
-            // 4. Insert the slot assignment
+            // 5. Insert the new slot assignment
             const { error: insertError } = await supabase
                 .from('user_slots')
-                .insert({ user_id: userId, slot });
+                .insert({ user_id: userId, slot: assignedSlot });
 
             if (insertError) {
                 setError('Error al guardar el slot de usuario.');
@@ -73,7 +76,7 @@ export default function LoginScreen({ onLogin, setAdminOpen }) {
                 return;
             }
 
-            onLogin(slot);
+            onLogin(assignedSlot);
         } catch (err) {
             setError('Error inesperado. Intente nuevamente.');
             console.error(err);
@@ -113,15 +116,48 @@ export default function LoginScreen({ onLogin, setAdminOpen }) {
 
                     <div className="login-field">
                         <label htmlFor="login-password" className="login-label">Contraseña</label>
-                        <input
-                            id="login-password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            autoComplete="current-password"
-                            required
-                            disabled={loading}
-                        />
+                        <div style={{ position: "relative" }}>
+                            <input
+                                id="login-password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                autoComplete="current-password"
+                                required
+                                disabled={loading}
+                                style={{ width: "100%", paddingRight: "40px" }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "10px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    color: showPassword ? "#C9A84C" : "#666",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    padding: "5px"
+                                }}
+                            >
+                                {showPassword ? (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                        <line x1="1" y1="1" x2="23" y2="23" />
+                                    </svg>
+                                ) : (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {error && <p className="login-error">{error}</p>}
