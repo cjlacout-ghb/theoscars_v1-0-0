@@ -83,6 +83,36 @@ body {
     min-height: 60vh;
 }
 
+.deadline-banner {
+    width: 100%;
+    max-width: 920px;
+    background: rgba(180, 40, 40, 0.15);
+    border: 1px solid rgba(220, 50, 50, 0.4);
+    padding: 16px 24px;
+    margin: 20px auto 0;
+    text-align: center;
+    color: #e07070;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.banner-icon {
+    font-size: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
 .card {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(201, 168, 76, 0.15);
@@ -220,6 +250,17 @@ body {
     background: rgba(201, 168, 76, 0.06);
     border-color: rgba(201, 168, 76, 0.25);
 }
+
+.nominee-row.disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.nominee-row.disabled:hover {
+    background: rgba(255, 255, 255, 0.01);
+    border-color: rgba(201, 168, 76, 0.08);
+}
+
 
 .nominee-row.winner-highlight {
     background: rgba(201, 168, 76, 0.12);

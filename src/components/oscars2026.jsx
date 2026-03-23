@@ -5,6 +5,7 @@ import {
   VOTES_KEY,
   WINNERS_KEY,
   PLAYERS_KEY,
+  VOTING_DEADLINE,
 } from "../lib/constants";
 import "../styles/oscars.css";
 
@@ -15,6 +16,20 @@ import ProfileEditor from "./oscars/ProfileEditor";
 import VotingTab from "./oscars/VotingTab";
 import CompareTab from "./oscars/CompareTab";
 import ResultsTab from "./oscars/ResultsTab";
+
+// ─────────────────────────────────────────────
+// Helper: normaliza winners legacy (string) → arrays
+// Asegura retrocompatibilidad con datos guardados antes del empate
+const normalizeWinners = (raw) => {
+  if (!raw) return {};
+  const out = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (v === null || v === undefined) out[k] = null;
+    else if (Array.isArray(v)) out[k] = v;
+    else out[k] = [v]; // migra string antiguo → array de 1 elemento
+  }
+  return out;
+};
 
 // ─────────────────────────────────────────────
 // COMPONENTE PRINCIPAL
@@ -34,6 +49,10 @@ export default function OscarsApp({ slot, setAdminOpen }) {
   const [editingEmoji, setEditingEmoji] = useState(null);
   const [resetConfirm, setResetConfirm] = useState(false);
 
+  const isVotingClosed = useMemo(() => {
+    return new Date() > new Date(VOTING_DEADLINE);
+  }, []);
+
   const syncFromCloud = useCallback(async () => {
     const [v, w, p] = await Promise.all([
       storageGet(VOTES_KEY),
@@ -41,7 +60,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
       storageGet(PLAYERS_KEY),
     ]);
     if (v) setVotes(v);
-    if (w) setWinners(w);
+    if (w) setWinners(normalizeWinners(w)); // normaliza formato legacy
     if (p) setPlayers(p);
     setLastSync(new Date().toLocaleTimeString("es-AR"));
   }, []);
@@ -79,7 +98,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
   };
 
   const castVote = async (catId, nominee) => {
-    if (!mySlot) return;
+    if (!mySlot || isVotingClosed) return;
     const current = votes[catId]?.[mySlot];
     const newNom = current === nominee ? null : nominee;
     const updated = { ...votes, [catId]: { ...(votes[catId] || {}), [mySlot]: newNom } };
@@ -88,7 +107,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
   };
 
   const resetVotes = async () => {
-    if (!mySlot || !players[mySlot]) return;
+    if (!mySlot || !players[mySlot] || isVotingClosed) return;
     if (!resetConfirm) {
       setResetConfirm(true);
       return;
@@ -111,10 +130,10 @@ export default function OscarsApp({ slot, setAdminOpen }) {
   const scores = useMemo(() => {
     let p1 = 0, p2 = 0;
     CATEGORIES.forEach((cat) => {
-      const w = winners[cat.id];
-      if (!w) return;
-      if (votes[cat.id]?.p1 === w) p1++;
-      if (votes[cat.id]?.p2 === w) p2++;
+      const winArr = winners[cat.id];          // array o null
+      if (!winArr || winArr.length === 0) return;
+      if (winArr.includes(votes[cat.id]?.p1)) p1++; // acierto si el voto está en el array
+      if (winArr.includes(votes[cat.id]?.p2)) p2++;
     });
     return { p1, p2 };
   }, [winners, votes]);
@@ -125,7 +144,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
   }, [votes, mySlot]);
 
   const revealedCount = useMemo(() => {
-    return Object.keys(winners).filter((k) => winners[k]).length;
+    return Object.keys(winners).filter((k) => winners[k]?.length > 0).length;
   }, [winners]);
 
   const otherSlot = mySlot === "p1" ? "p2" : "p1";
@@ -146,6 +165,14 @@ export default function OscarsApp({ slot, setAdminOpen }) {
         </h1>
         <p>Dolby Theatre · Hollywood · Domingo 15 de marzo de 2026</p>
       </div>
+
+      {isVotingClosed && (
+        <div className="deadline-banner">
+          <span className="banner-icon">🔒</span>
+          Votaciones cerradas. La ceremonia ha comenzado o finalizado.
+        </div>
+      )}
+
 
       <div className="section">
         <div className="sync-status">
@@ -183,6 +210,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
                 setResetConfirm={setResetConfirm}
                 resetVotes={resetVotes}
                 startEditing={startEditing}
+                isVotingClosed={isVotingClosed}
               />
             )}
 
@@ -234,6 +262,7 @@ export default function OscarsApp({ slot, setAdminOpen }) {
                     otherSlot={otherSlot}
                     castVote={castVote}
                     votedCount={votedCount}
+                    isVotingClosed={isVotingClosed}
                   />
                 )}
 

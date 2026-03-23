@@ -9,7 +9,9 @@ const VotingTab = ({
     otherSlot,
     castVote,
     votedCount,
+    isVotingClosed,
 }) => {
+
     return (
         <>
             {mySlot && (
@@ -29,9 +31,11 @@ const VotingTab = ({
                     textAlign: "center",
                 }}
             >
-                {mySlot
-                    ? `${votedCount} de ${CATEGORIES.length} categorías elegidas · Tocá un nominado para votar`
-                    : "Regístrate primero para votar"}
+                {isVotingClosed
+                    ? `Votación finalizada (${votedCount} de ${CATEGORIES.length} categorías completadas)`
+                    : mySlot
+                        ? `${votedCount} de ${CATEGORIES.length} categorías elegidas · Tocá un nominado para votar`
+                        : "Regístrate primero para votar"}
             </p>
             {CATEGORIES.map((cat) => (
                 <div key={cat.id} className="category-block">
@@ -39,18 +43,18 @@ const VotingTab = ({
                     {cat.nominees.map((nom) => {
                         const myVote = mySlot && votes[cat.id]?.[mySlot] === nom;
                         const otherVote = votes[cat.id]?.[otherSlot] === nom;
-                        const isWinner = winners[cat.id] === nom;
+                        const isWinner = (winners[cat.id] ?? []).includes(nom);
                         return (
                             <div
                                 key={nom}
                                 role="button"
-                                tabIndex={mySlot ? 0 : -1}
+                                tabIndex={mySlot && !isVotingClosed ? 0 : -1}
                                 aria-pressed={myVote}
                                 aria-label={`Votar por ${nom} en la categoría ${cat.name}`}
-                                className={`nominee-row ${isWinner ? "winner-highlight" : ""}`}
-                                onClick={() => mySlot && castVote(cat.id, nom)}
+                                className={`nominee-row ${isWinner ? "winner-highlight" : ""} ${isVotingClosed ? "disabled" : ""}`}
+                                onClick={() => mySlot && !isVotingClosed && castVote(cat.id, nom)}
                                 onKeyDown={(e) => {
-                                    if (mySlot && (e.key === "Enter" || e.key === " ")) {
+                                    if (mySlot && !isVotingClosed && (e.key === "Enter" || e.key === " ")) {
                                         e.preventDefault();
                                         castVote(cat.id, nom);
                                     }

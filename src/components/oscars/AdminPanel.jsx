@@ -3,6 +3,18 @@ import { CATEGORIES, GOLD, ADMIN_PASSWORD, WINNERS_KEY, VOTES_KEY, PLAYERS_KEY }
 import { storageGet, storageSet } from "../../lib/supabase";
 import { logger } from "../../lib/logger";
 
+// Normaliza winners legacy (string) → arrays para retrocompatibilidad
+const normalizeWinners = (raw) => {
+    if (!raw) return {};
+    const out = {};
+    for (const [k, v] of Object.entries(raw)) {
+        if (v === null || v === undefined) out[k] = null;
+        else if (Array.isArray(v)) out[k] = v;
+        else out[k] = [v]; // migra string antiguo → array de 1 elemento
+    }
+    return out;
+};
+
 const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     const [adminAuth, setAdminAuth] = useState(false);
     const [adminPass, setAdminPass] = useState("");
@@ -17,7 +29,7 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     const syncWinners = useCallback(async () => {
         if (!adminOpen || !adminAuth) return;
         const w = await storageGet(WINNERS_KEY);
-        if (w) setWinners(w);
+        if (w) setWinners(normalizeWinners(w)); // normaliza formato legacy
     }, [adminOpen, adminAuth]);
 
     useEffect(() => {
@@ -38,7 +50,15 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
     };
 
     const setWinner = async (catId, nominee) => {
-        const updated = { ...winners, [catId]: winners[catId] === nominee ? null : nominee };
+        const current = winners[catId] ?? [];                        // array actual (o vacío)
+        const alreadySelected = current.includes(nominee);
+        const newVal = alreadySelected
+            ? current.filter((n) => n !== nominee)                   // quitar si ya estaba
+            : [...current, nominee];                                 // agregar si no estaba
+        const updated = {
+            ...winners,
+            [catId]: newVal.length === 0 ? null : newVal,           // null si queda vacío
+        };
         setWinners(updated);
         await storageSet(WINNERS_KEY, updated);
     };
@@ -258,15 +278,18 @@ const AdminPanel = ({ adminOpen, setAdminOpen }) => {
                                         }}
                                     >
                                         {cat.name}
-                                        {winners[cat.id] && (
-                                            <span style={{ color: GOLD }}> · ✓ {winners[cat.id].substring(0, 40)}</span>
+                                        {winners[cat.id]?.length > 0 && (
+                                            <span style={{ color: GOLD }}>· ✓ {winners[cat.id].join(" & ").substring(0, 65)}</span>
+                                        )}
+                                        {winners[cat.id]?.length > 1 && (
+                                            <span style={{ color: "#c87878", fontSize: 11, marginLeft: 6 }}>🤝 EMPATE</span>
                                         )}
                                     </div>
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                                         {cat.nominees.map((nom) => (
                                             <button
                                                 key={nom}
-                                                className={`btn-sm ${winners[cat.id] === nom ? "winner-selected" : ""}`}
+                                                className={`btn-sm ${(winners[cat.id] ?? []).includes(nom) ? "winner-selected" : ""}`}
                                                 onClick={() => setWinner(cat.id, nom)}
                                             >
                                                 {nom.substring(0, 38)}

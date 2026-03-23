@@ -227,3 +227,6 @@ export const DARK = "#0a0a0a";
 export const VOTES_KEY = "oscars98_v3_votes";
 export const WINNERS_KEY = "oscars98_v3_winners";
 export const PLAYERS_KEY = "oscars98_v3_players";
+
+export const VOTING_DEADLINE = "2026-03-15T21:00:00-03:00"; 
+

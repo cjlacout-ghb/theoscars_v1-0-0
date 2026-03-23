@@ -45,10 +45,11 @@ const ResultsTab = ({ scores, p1, p2, winners, votes, revealedCount }) => {
             </div>
             <div className="divider">◆ ◆ ◆</div>
             {CATEGORIES.map((cat) => {
-                const w = winners[cat.id];
-                if (!w) return null;
-                const p1hit = votes[cat.id]?.p1 === w;
-                const p2hit = votes[cat.id]?.p2 === w;
+                const winArr = winners[cat.id];          // array o null
+                if (!winArr || winArr.length === 0) return null;
+                const p1hit = winArr.includes(votes[cat.id]?.p1);
+                const p2hit = winArr.includes(votes[cat.id]?.p2);
+                const isTie = winArr.length > 1;
                 return (
                     <div key={cat.id} className="result-row">
                         <h3
@@ -62,9 +63,16 @@ const ResultsTab = ({ scores, p1, p2, winners, votes, revealedCount }) => {
                             }}
                         >
                             {cat.name}
+                            {isTie && (
+                                <span style={{ color: "#c87878", fontSize: 11, marginLeft: 8, letterSpacing: "0.08em" }}>
+                                    🤝 EMPATE HISTÓRICO
+                                </span>
+                            )}
                         </h3>
-                        <div style={{ color: GOLD, fontSize: 18, marginBottom: 10, lineHeight: 1.3 }}>
-                            🏆 {w}
+                        <div style={{ color: GOLD, fontSize: 18, marginBottom: 10, lineHeight: 1.5 }}>
+                            {winArr.map((w, i) => (
+                                <div key={w}>🏆 {w}</div>
+                            ))}
                         </div>
                         <div style={{ display: "flex", gap: 24 }}>
                             {p1 && (

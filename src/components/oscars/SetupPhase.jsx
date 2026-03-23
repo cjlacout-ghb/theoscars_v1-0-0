@@ -15,7 +15,9 @@ const SetupPhase = ({
     setResetConfirm,
     resetVotes,
     startEditing,
+    isVotingClosed,
 }) => {
+
     const [savedName, setSavedName] = useState("");
 
     const handleSaveName = () => {
@@ -184,35 +186,55 @@ const SetupPhase = ({
             )}
 
             {mySlot && players[mySlot] && (
-                <>
-                    <button className="btn" onClick={() => setPhase("voting")}>
-                        Ir a votar →
-                    </button>
-                    {resetConfirm ? (
-                        <div style={{ marginTop: 15, display: "flex", flexDirection: "column", gap: 10 }}>
-                            <div style={{ display: "flex", gap: 10 }}>
-                                <button
-                                    className="reset-btn"
-                                    style={{ marginTop: 0, flex: 2 }}
-                                    onClick={resetVotes}
-                                >
-                                    Confirmar Borrado Picks
-                                </button>
-                                <button
-                                    className="btn-sm"
-                                    style={{ flex: 1 }}
-                                    onClick={() => setResetConfirm(false)}
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <button className="reset-btn" onClick={() => setResetConfirm(true)}>
-                            Reiniciar mis votos
+                isVotingClosed ? (
+                    /* ── VOTACIÓN CERRADA: sólo lectura ── */
+                    <>
+                        <button className="btn" onClick={() => setPhase("voting")}>
+                            Ver mis picks →
                         </button>
-                    )}
-                </>
+                        <p style={{
+                            textAlign: "center",
+                            color: "#e07070",
+                            fontSize: 14,
+                            marginTop: 14,
+                            fontStyle: "italic",
+                            letterSpacing: "0.05em",
+                        }}>
+                            🔒 El período de votación ha finalizado. Tus picks están guardados y son de sólo lectura.
+                        </p>
+                    </>
+                ) : (
+                    /* ── VOTACIÓN ABIERTA: acciones normales ── */
+                    <>
+                        <button className="btn" onClick={() => setPhase("voting")}>
+                            Ir a votar →
+                        </button>
+                        {resetConfirm ? (
+                            <div style={{ marginTop: 15, display: "flex", flexDirection: "column", gap: 10 }}>
+                                <div style={{ display: "flex", gap: 10 }}>
+                                    <button
+                                        className="reset-btn"
+                                        style={{ marginTop: 0, flex: 2 }}
+                                        onClick={resetVotes}
+                                    >
+                                        Confirmar Borrado Picks
+                                    </button>
+                                    <button
+                                        className="btn-sm"
+                                        style={{ flex: 1 }}
+                                        onClick={() => setResetConfirm(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button className="reset-btn" onClick={() => setResetConfirm(true)}>
+                                Reiniciar mis votos
+                            </button>
+                        )}
+                    </>
+                )
             )}
 
             {!mySlot && (
